@@ -2,8 +2,8 @@ import { Server } from "socket.io";
 import http from "http";
 
 interface User {
-  userId: string; // stable ID from client
-  socketId: string; // current connection
+  userId: string;
+  socketId: string;
   name: string;
   room: string;
 }
@@ -21,7 +21,12 @@ interface Segment {
 }
 
 const rooms: Record<string, User[]> = {};
-const httpServer = http.createServer();
+
+// create HTTP server that responds to Render's health checks
+const httpServer = http.createServer((req, res) => {
+  res.writeHead(200, { "Content-Type": "text/plain" });
+  res.end("Socket.IO server is running 🚀");
+});
 
 const io = new Server(httpServer, {
   cors: {
@@ -33,52 +38,35 @@ const io = new Server(httpServer, {
 io.on("connection", (socket) => {
   console.log("Connected:", socket.id);
 
-  // --- JOIN ROOM ---
-  socket.on(
-    "join_room",
-    (data: { userId: string; name: string; room: string }) => {
-      const { userId, name, room } = data;
-      if (!rooms[room]) rooms[room] = [];
+  socket.on("join_room", (data: { userId: string; name: string; room: string }) => {
+    const { userId, name, room } = data;
+    if (!rooms[room]) rooms[room] = [];
 
-      // Remove previous connections from same user
-      rooms[room] = rooms[room].filter((u) => u.userId !== userId);
+    rooms[room] = rooms[room].filter((u) => u.userId !== userId);
+    const user: User = { userId, socketId: socket.id, name, room };
+    rooms[room].push(user);
 
-      const user: User = { userId, socketId: socket.id, name, room };
-      rooms[room].push(user);
-      socket.join(room);
+    socket.join(room);
+    io.to(room).emit("user_joined", rooms[room]);
+    console.log(`${name} joined ${room}`);
+  });
 
-      io.to(room).emit("user_joined", rooms[room]);
-      console.log(`${name} joined ${room}`);
-    }
-  );
-
-  // --- DRAWING ---
   socket.on("draw", (segments: Segment[]) => {
     const userRoom = Object.values(rooms)
       .flat()
       .find((u) => u.socketId === socket.id)?.room;
 
-    if (userRoom) {
-      // Broadcast to all *other* clients in that room
-      socket.to(userRoom).emit("draw", segments);
-    }
+    if (userRoom) socket.to(userRoom).emit("draw", segments);
   });
 
-  // --- CHAT ---
-  socket.on(
-    "chat",
-    (data: { name: string; userId: string; message: string }) => {
-      const userRoom = Object.values(rooms)
-        .flat()
-        .find((u) => u.socketId === socket.id)?.room;
+  socket.on("chat", (data: { name: string; userId: string; message: string }) => {
+    const userRoom = Object.values(rooms)
+      .flat()
+      .find((u) => u.socketId === socket.id)?.room;
 
-      if (userRoom) {
-        io.to(userRoom).emit("chat", data);
-      }
-    }
-  );
+    if (userRoom) io.to(userRoom).emit("chat", data);
+  });
 
-  // --- DISCONNECT ---
   socket.on("disconnect", () => {
     for (const room in rooms) {
       rooms[room] = rooms[room].filter((u) => u.socketId !== socket.id);
