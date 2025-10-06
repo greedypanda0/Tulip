@@ -24,7 +24,7 @@ export function useSocket({ room, name, userId }: UseSocketOptions) {
     if (!userId) return;
 
     if (!socketRef.current) {
-      const socket = io("http://localhost:4000", {
+      const socket = io(process.env.SOCKET_URL, {
         transports: ["websocket"],
         autoConnect: true,
         reconnection: true,
