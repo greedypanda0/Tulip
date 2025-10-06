@@ -4,13 +4,11 @@
   "private": true,
   "scripts": {
     "dev:web": "next dev --turbopack",
-    "dev:server": "tsx watch server",
+    "dev:server": "tsx watch server/server.ts",
     "dev": "concurrently \"npm run dev:web\" \"npm run dev:server\"",
-    "build:web": "next build --turbopack",
-    "build:server": "tsc -p server/tsconfig.json",
-    "build": "npm run build:web && npm run build:server",
+    "build": "next build --turbopack",
     "start:web": "next start",
-    "start:server": "node server/dist/server.js",
+    "start:server": "node server/server.ts",
     "start": "concurrently \"npm run start:web\" \"npm run start:server\"",
     "lint": "eslint . --ext .js,.ts,.tsx"
   },

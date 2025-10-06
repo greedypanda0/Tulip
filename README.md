@@ -109,15 +109,11 @@ tulip/
 - `npm run dev:web` - Start Next.js development server only
 - `npm run dev:server` - Start Socket.IO server with watch mode
 
-**Build:**
-- `npm run build` - Build both web app and server
-- `npm run build:web` - Build Next.js application
-- `npm run build:server` - Compile TypeScript server
-
 **Production:**
+- `npm run build` - Build Next.js application for production
 - `npm run start` - Start both production servers
 - `npm run start:web` - Start Next.js production server
-- `npm run start:server` - Start compiled server
+- `npm run start:server` - Start server directly
 
 **Other:**
 - `npm run lint` - Run ESLint

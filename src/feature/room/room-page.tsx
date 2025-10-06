@@ -4,6 +4,7 @@ import { useSocket } from "@/hooks/use-socket";
 import Sidebar from "./sidebar";
 import Canvas from "./canvas";
 import { CanvasProvider } from "@/context/canvas-context";
+import LoginDialog from "@/app/components/login-dialog";
 
 export default function RoomPage({ room }: { room: string }) {
   const { name, userId } = useUserData();
@@ -12,6 +13,7 @@ export default function RoomPage({ room }: { room: string }) {
     userId,
     room,
   });
+  if (!name || !userId) return <LoginDialog />;
 
   return (
     <div className="w-full h-full flex flex-row">
