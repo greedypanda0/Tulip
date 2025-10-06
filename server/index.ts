@@ -88,7 +88,7 @@ io.on("connection", (socket) => {
   });
 });
 
-const PORT = process.env.PORT || 4000;
-httpServer.listen(PORT, () => {
+const PORT = Number(process.env.PORT) || 4000;
+httpServer.listen(PORT, "0.0.0.0", () => {
   console.log(`Socket.IO server running on port ${PORT}`);
 });
