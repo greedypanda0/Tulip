@@ -21,7 +21,7 @@ export function SocketProvider({
 
   useEffect(() => {
     const ws = new WebSocket(
-      `ws://localhost:8080/ws?name=${name}&room=${room}`,
+      `${import.meta.env.VITE_SOCKET_URL}?name=${name}&room=${room}`,
     );
 
     setSocket(ws);
