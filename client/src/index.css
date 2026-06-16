@@ -1,0 +1,91 @@
+@import url("https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Outfit:wght@400;500;600;700&display=swap");
+@import "tailwindcss";
+
+:root {
+    --bg: #2a2139;
+
+    --surface: #3a2f4f;
+    --surface-2: #46385f;
+
+    --primary: #ff7eb6;
+    --primary-hover: #ff5fa2;
+
+    --secondary: #ffd166;
+    --secondary-hover: #ffc233;
+
+    --accent: #7bd389;
+    --accent-hover: #5fcf72;
+
+    --danger: #ff6b81;
+    --danger-hover: #ff4d6d;
+
+    --success: #57cc99;
+    --success-hover: #38b87c;
+
+    --text: #fff8fc;
+    --text-muted: #d0c6d9;
+
+    --border: #1d1629;
+
+    --shadow: #1d1629;
+}
+
+@theme {
+    --color-bg: var(--bg);
+    --color-surface: var(--surface);
+    --color-surface-2: var(--surface-2);
+    --color-primary: var(--primary);
+    --color-primary-hover: var(--primary-hover);
+    --color-secondary: var(--secondary);
+    --color-accent: var(--accent);
+    --color-accent-hover: var(--accent-hover);
+    --color-danger: var(--danger);
+    --color-danger-hover: var(--danger-hover);
+    --color-success: var(--success);
+    --color-text-main: var(--text);
+    --color-text-muted: var(--text-muted);
+    --color-border-custom: var(--border);
+    --color-shadow: var(--shadow);
+    --font-fredoka: "Fredoka", system-ui, sans-serif;
+    --font-outfit: "Outfit", system-ui, sans-serif;
+}
+
+@keyframes float {
+    0% {
+        transform: translate(0px, 0px);
+    }
+
+    25% {
+        transform: translate(25px, -20px);
+    }
+
+    50% {
+        transform: translate(-20px, 30px);
+    }
+
+    75% {
+        transform: translate(15px, 10px);
+    }
+
+    100% {
+        transform: translate(0px, 0px);
+    }
+}
+
+@keyframes wobble {
+    0% {
+        transform: rotate(-4deg);
+    }
+
+    100% {
+        transform: rotate(4deg);
+    }
+}
+
+.animate-float {
+    animation: float ease-in-out infinite;
+}
+
+.animate-wobble {
+    animation: wobble 1s ease-in-out infinite alternate;
+}
