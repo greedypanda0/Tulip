@@ -29,6 +29,8 @@ export const SidebarTools: React.FC = () => {
     setColor(board.color);
   }, [board]);
 
+  if (!board) return null;
+
   const onToolChange = (tool: string) => {
     setTool(tool);
     board.setTool(tool === "brush" ? 0 : 1);

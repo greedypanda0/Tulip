@@ -14,6 +14,7 @@ export class Board {
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
+    this.send = () => {};
     this.ctx = canvas.getContext("2d")!;
     this.isDrawing = false;
 
