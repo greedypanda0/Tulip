@@ -1,51 +1,37 @@
 package main
 
 import (
-	"log"
-	"net/http"
+	"context"
+	"log/slog"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
-	"github.com/gorilla/websocket"
-	Room "github.com/greedypanda0/tulip/internal/room"
+	"github.com/greedypanda0/tulip/internal/server"
+	"github.com/joho/godotenv"
 )
 
-var upgrader = &websocket.Upgrader{
-	CheckOrigin: func(r *http.Request) bool {
-		// TODO: tighten origin check for production
-		return true
-	},
-}
-
-var roomManager = Room.NewRoomManager()
-
-func handleWebSocket(w http.ResponseWriter, r *http.Request) {
-	conn, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		log.Printf("ws upgrade error: %v", err)
-		http.Error(w, "could not upgrade to websocket", http.StatusBadRequest)
+func main() {
+	if err := godotenv.Load(); err != nil {
+		slog.Error("Could not load .env")
 		return
 	}
 
-	roomID := r.URL.Query().Get("room")
-	if roomID == "" {
-		roomID = "default"
-	}
+	s := server.NewServer()
 
-	name := r.URL.Query().Get("name")
-	if name == "" {
-		name = "anonymous"
-	}
+	go func() {
+		slog.Info("Server started", "port", os.Getenv("PORT"))
+		s.ListenAndServe()
+	}()
 
-	log.Printf("new connection: room=%s name=%s remote=%s", roomID, name, conn.RemoteAddr())
+	// for shutdown
+	stop := make(chan os.Signal, 1)
+	signal.Notify(stop, os.Interrupt, syscall.SIGTERM)
+	<-stop
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
 
-	room := roomManager.GetRoom(roomID)
-	room.ServeWS(conn, name)
-}
-
-func main() {
-	http.HandleFunc("/ws", handleWebSocket)
-	addr := ":8080"
-	log.Printf("starting server on %s", addr)
-	if err := http.ListenAndServe(addr, nil); err != nil {
-		log.Fatalf("server failed: %v", err)
-	}
+	s.Shutdown(ctx)
+	slog.Info("shutdown signal received")
 }
