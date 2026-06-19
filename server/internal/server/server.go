@@ -50,9 +50,11 @@ func (s *Server) WSHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	room := s.Hub.AddOrCreate(roomName)
-
-	client := CreateClient(name, room, con)
-	room.register <- client
+	client := room.GetClient(name)
+	if client == nil {
+		client = CreateClient(name, room, con)
+		room.register <- client
+	}
 
 	go client.ReadPump()
 	go client.WritePump()
@@ -74,6 +76,10 @@ func (s *Server) ListenAndServe() error {
 }
 
 func (s *Server) Shutdown(ctx context.Context) error {
+	if err := s.s.Shutdown(ctx); err != nil {
+		return err
+	}
+
 	s.Hub.Shutdown(ctx)
-	return s.s.Shutdown(ctx)
+	return nil
 }

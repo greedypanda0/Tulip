@@ -12,7 +12,6 @@ type Stroke struct {
 	Points []Point `json:"points"`
 	Color  string  `json:"color"`
 	Width  int     `json:"width"`
-	UserID string  `json:"user_id"`
 }
 
 type User struct {

@@ -45,6 +45,8 @@ export class Board {
   };
 
   addStroke = (stroke: Stroke) => {
+    if (!stroke.id || !stroke.points) return;
+
     const isOldStroke = this.strokes.find((s) => s.id === stroke.id);
     if (isOldStroke) {
       isOldStroke.points = stroke.points;

@@ -45,7 +45,10 @@ func (c *Client) Emit(eventType string, data any) {
 
 func (c *Client) ReadPump() {
 	defer func() {
-		c.Room.unregister <- c
+		select {
+		case c.Room.unregister <- c:
+		default:
+		}
 		c.Conn.Close()
 	}()
 
@@ -68,21 +71,13 @@ func (c *Client) ReadPump() {
 
 		switch payload.Type {
 		case "get_members":
-			c.SendBytes(c.Room.GetMembersBytes())
+			c.Room.events <- &Payload{Type: "get_members", Data: c.Name}
 
 		case "get_chats":
-			message, _ := json.Marshal(Payload{
-				Type: "chats",
-				Data: c.Room.Chats,
-			})
-			c.SendBytes(message)
+			c.Room.events <- &Payload{Type: "get_chats", Data: c.Name}
 
 		case "get_strokes":
-			message, _ := json.Marshal(Payload{
-				Type: "strokes",
-				Data: c.Room.Strokes,
-			})
-			c.SendBytes(message)
+			c.Room.events <- &Payload{Type: "get_strokes", Data: c.Name}
 
 		case "chat":
 			var text string
@@ -129,7 +124,7 @@ func (c *Client) SendBytes(b []byte) {
 	select {
 	case c.send <- b:
 	default:
-		c.Room.unregister <- c
+		// drop on overflow
 	}
 }
 

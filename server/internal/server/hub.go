@@ -2,18 +2,39 @@ package server
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 )
 
 type Hub struct {
-	mu    sync.Mutex
-	rooms map[string]*Room
+	mu     sync.Mutex
+	rooms  map[string]*Room
+	roomCh chan *Room
 }
 
 func NewHub() *Hub {
-	return &Hub{
-		rooms: make(map[string]*Room),
+	h := &Hub{
+		rooms:  make(map[string]*Room),
+		roomCh: make(chan *Room, 16),
 	}
+	
+	go h.RoomCh()
+	return h
+}
+
+func (h *Hub) RoomCh() {
+	slog.Info("Room clearing process started")
+	
+	for room := range h.roomCh {
+		h.mu.Lock()
+		if _, ok := h.rooms[room.Name]; ok {
+			room.Shutdown(context.Background())
+			delete(h.rooms, room.Name)
+		}
+		h.mu.Unlock()
+	}
+	
+	slog.Info("Room clearing process stopped")
 }
 
 func (h *Hub) CreateRoom(name string) *Room {
@@ -26,13 +47,14 @@ func (h *Hub) CreateRoom(name string) *Room {
 		Chats:      make([]Chat, 0),
 		boardcast:  make(chan []byte, 1000),
 		events:     make(chan *Payload, 1000),
+		hub:        h,
 	}
-
-	go room.Run()
 
 	h.mu.Lock()
 	h.rooms[room.Name] = room
 	h.mu.Unlock()
+
+	go room.Run()
 
 	return room
 }
@@ -56,7 +78,14 @@ func (h *Hub) AddOrCreate(name string) *Room {
 }
 
 func (h *Hub) Shutdown(ctx context.Context) {
+	h.mu.Lock()
+	rooms := make([]*Room, 0, len(h.rooms))
 	for _, room := range h.rooms {
+		rooms = append(rooms, room)
+	}
+	h.mu.Unlock()
+
+	for _, room := range rooms {
 		room.Shutdown(ctx)
 	}
 }

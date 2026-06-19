@@ -24,9 +24,23 @@ export function SocketProvider({
       `${import.meta.env.VITE_SOCKET_URL}?name=${name}&room=${room}`,
     );
 
+    ws.addEventListener("open", () => {
+      console.log("WebSocket connected");
+    });
+
+    ws.addEventListener("close", () => {
+      console.log("WebSocket disconnected");
+    });
+    const onMessage = (event: MessageEvent) => {
+      const data = JSON.parse(event.data);
+      console.log(data);
+    };
+    ws.addEventListener("message", onMessage );
+
     setSocket(ws);
 
     return () => {
+      ws.removeEventListener("message", onMessage);
       ws.close();
     };
   }, [name, room]);
