@@ -49,7 +49,7 @@ export default function Canvas({
         );
       });
 
-      canvasRef.current.addEventListener("mouseleave", () => {
+      canvasRef.current?.addEventListener("mouseleave", () => {
         socket.send(
           JSON.stringify({
             type: "cursor",

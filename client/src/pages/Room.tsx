@@ -21,7 +21,7 @@ export const Room: React.FC = () => {
       {!name && <NameCard onClose={(name) => setName(name)} />}
       
       <Background />
-      <SocketProvider name={name} room={roomId!}>
+      <SocketProvider name={name ?? "Anonn"} room={roomId!}>
         <BoardContext.Provider value={board}>
           <div className="flex-1 flex min-h-0 z-10">
             {/* Canvas */}
