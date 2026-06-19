@@ -61,6 +61,7 @@ func (c *Client) ReadPump() {
 	for {
 		_, raw, err := c.Conn.ReadMessage()
 		if err != nil {
+			slog.Error("read message failed", "err", err)
 			return
 		}
 
@@ -82,7 +83,6 @@ func (c *Client) ReadPump() {
 		case "chat":
 			var text string
 			if err := json.Unmarshal(payload.Data, &text); err != nil {
-				slog.Error("chat unmarshal failed", "err", err)
 				continue
 			}
 

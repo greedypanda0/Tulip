@@ -43,7 +43,7 @@ func (h *Hub) CreateRoom(name string) *Room {
 		Clients:    make(map[string]*Client),
 		register:   make(chan *Client),
 		unregister: make(chan *Client),
-		Strokes:    make([]Stroke, 0),
+		Strokes:    make(map[string]*Stroke, 0),
 		Chats:      make([]Chat, 0),
 		boardcast:  make(chan []byte, 1000),
 		events:     make(chan *Payload, 1000),

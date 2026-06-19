@@ -15,7 +15,6 @@ export const SidebarMembers: React.FC = () => {
     socket.send(
       JSON.stringify({
         type: "get_members",
-        data: "",
       }),
     );
 

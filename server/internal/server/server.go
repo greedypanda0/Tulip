@@ -26,9 +26,14 @@ var ws = &websocket.Upgrader{
 }
 
 func NewServer() *Server {
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	return &Server{
 		s: &http.Server{
-			Addr: ":" + os.Getenv("PORT"),
+			Addr: ":" + port,
 		},
 		Hub: NewHub(),
 	}

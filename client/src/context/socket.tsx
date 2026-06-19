@@ -33,9 +33,10 @@ export function SocketProvider({
     });
     const onMessage = (event: MessageEvent) => {
       const data = JSON.parse(event.data);
-      console.log(data);
+      console.log(data, "from ws");
     };
-    ws.addEventListener("message", onMessage );
+
+    ws.addEventListener("message", onMessage);
 
     setSocket(ws);
 

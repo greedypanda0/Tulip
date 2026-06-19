@@ -1,0 +1,79 @@
+# Node
+node_modules/
+client/node_modules/
+client/dist/
+client/.vite/
+
+# Build
+dist/
+.build/
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Environment / secrets
+.env
+.env.local
+.env.*.local
+client/.env
+server/.env
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Editors
+.vscode/
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Go
+server/bin/
+server/pkg/
+*.exe
+*.exe~
+*.out
+*.test
+vendor/
+
+# Go modules cache (optional)
+**/go/pkg/mod/
+
+# Coverage
+coverage/
+coverage.out
+
+# Misc
+*.sqlite3
+
+# Temporary
+tmp/
+temp/
+
+# Yarn
+.pnp/
+.pnp.js
+
+# macOS
+.AppleDouble
+.LSOverride
+
+# Windows
+ehthumbs.db
+
+# JetBrains
+.idea/
+
+# Ignore IDE settings
+/.vscode/
+
+# Generated files
+package-lock.json

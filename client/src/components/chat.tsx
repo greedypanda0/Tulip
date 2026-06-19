@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { useSocket } from "../context/socket";
 interface ChatMessage {
   message: string;
-  name: string | null;
+  name: string;
+}
+interface ChatData {
+  text: string;
+  user: { name: string };
 }
 
 export const SidebarChat: React.FC = () => {
@@ -16,30 +20,48 @@ export const SidebarChat: React.FC = () => {
     const onMessage = (event: MessageEvent) => {
       const data = JSON.parse(event.data);
       if (data.type === "chat") {
-        setMessages([...messages, data.data]);
+        setMessages((prevMessages) => [
+          ...prevMessages,
+          {
+            message: data.data.text,
+            name: data.data.user.name,
+          },
+        ]);
+      }
+
+      if (data.type === "chats") {
+        setMessages(
+          data.data.map((chat: ChatData) => ({
+            message: chat.text,
+            name: chat.user.name,
+          })),
+        );
       }
     };
+
+    socket.send(
+      JSON.stringify({
+        type: "get_chats",
+      }),
+    );
 
     socket.addEventListener("message", onMessage);
 
     return () => {
       socket.removeEventListener("message", onMessage);
     };
-  }, [socket, messages]);
+  }, [socket]);
 
   const handleSubmit = () => {
     const msg = message.trim();
     if (!msg) return;
+    console.log(msg, socket);
 
     if (socket) {
-      const name = localStorage.getItem("name");
       socket.send(
         JSON.stringify({
           type: "chat",
-          data: {
-            message: msg,
-            name,
-          },
+          data: msg,
         }),
       );
     }
@@ -69,7 +91,10 @@ export const SidebarChat: React.FC = () => {
       <div className="flex-1 min-h-0 overflow-y-auto px-2">
         {messages.map((msg, index) => (
           <div key={index}>
-            <span className="font-fredoka font-bold">{msg.name ?? "Anonymous"}:</span> {msg.message}
+            <span className="font-fredoka font-bold">
+              {msg.name ?? "Anonymous"}:
+            </span>{" "}
+            {msg.message}
           </div>
         ))}
       </div>

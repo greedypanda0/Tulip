@@ -10,7 +10,7 @@ import (
 type Room struct {
 	Name    string
 	Clients map[string]*Client
-	Strokes []Stroke
+	Strokes map[string]*Stroke
 	Chats   []Chat
 
 	register   chan *Client
@@ -72,7 +72,9 @@ func (r *Room) HandleEvents(event *Payload) {
 	case "chat":
 		r.Chats = append(r.Chats, event.Data.(Chat))
 	case "stroke":
-		r.Strokes = append(r.Strokes, event.Data.(Stroke))
+		if stroke, ok := event.Data.(Stroke); ok {
+			r.Strokes[stroke.ID] = &stroke
+		}
 	case "get_members":
 		if requester, ok := event.Data.(string); ok {
 			var members []User
@@ -101,7 +103,12 @@ func (r *Room) HandleEvents(event *Payload) {
 		}
 	case "get_strokes":
 		if requester, ok := event.Data.(string); ok {
-			message, _ := json.Marshal(Payload{Type: "strokes", Data: r.Strokes})
+			strokes := make([]*Stroke, 0, len(r.Strokes))
+
+			for _, stroke := range r.Strokes {
+				strokes = append(strokes, stroke)
+			}
+			message, _ := json.Marshal(Payload{Type: "strokes", Data: strokes})
 			if client, ok := r.Clients[requester]; ok {
 				select {
 				case client.send <- message:
@@ -142,9 +149,6 @@ func (r *Room) Shutdown(ctx context.Context) {
 		for _, client := range r.Clients {
 			if client.Conn != nil {
 				client.Conn.Close()
-			}
-			if client.send != nil {
-				close(client.send)
 			}
 		}
 	})

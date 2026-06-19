@@ -13,12 +13,13 @@ import { Topbar } from "../components/topbar";
 export const Room: React.FC = () => {
   const [board, setBoard] = useState<Board | null>(null);
   const { roomId } = useParams();
-  const [name, setName] = useState<string>(localStorage.getItem("name") ?? "Annonymous");
+  const [name, setName] = useState<string | null>(localStorage.getItem("name"));
 
   return (
     <div className="h-screen bg-bg relative flex flex-col overflow-hidden select-none">
       <Topbar />
-
+      {!name && <NameCard onClose={(name) => setName(name)} />}
+      
       <Background />
       <SocketProvider name={name} room={roomId!}>
         <BoardContext.Provider value={board}>
@@ -35,8 +36,6 @@ export const Room: React.FC = () => {
           </div>
         </BoardContext.Provider>
       </SocketProvider>
-
-      {!name && <NameCard onClose={(name) => setName(name)} />}
     </div>
   );
 };

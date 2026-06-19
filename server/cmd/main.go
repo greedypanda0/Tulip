@@ -19,9 +19,9 @@ func main() {
 	}
 
 	s := server.NewServer()
-
+	
 	go func() {
-		slog.Info("Server started", "port", os.Getenv("PORT"))
+		slog.Info("Server started")
 		s.ListenAndServe()
 	}()
 

@@ -45,8 +45,6 @@ export class Board {
   };
 
   addStroke = (stroke: Stroke) => {
-    if (!stroke.id || !stroke.points) return;
-
     const isOldStroke = this.strokes.find((s) => s.id === stroke.id);
     if (isOldStroke) {
       isOldStroke.points = stroke.points;
@@ -78,6 +76,8 @@ export class Board {
       color: this.tool === 0 ? this.color : this.backgroundColor,
       width: this.brushSize,
     };
+
+    this.send(this.currentStroke);
   };
 
   private handleMouseMove = (event: MouseEvent) => {
@@ -91,6 +91,7 @@ export class Board {
     });
 
     this.draw();
+    this.send(this.currentStroke);
   };
 
   private handleMouseUp = () => {
@@ -109,8 +110,6 @@ export class Board {
       ? [...this.strokes, this.currentStroke]
       : this.strokes;
 
-    this.send(this.currentStroke!);
-
     for (const stroke of strokes) {
       this.drawStroke(stroke);
     }
@@ -119,7 +118,15 @@ export class Board {
   private drawStroke(stroke: Stroke) {
     const points = stroke.points;
 
-    if (points.length < 2) return;
+    if (points.length < 2) {
+      this.ctx.beginPath();
+      this.ctx.fillStyle = stroke.color;
+
+      this.ctx.arc(points[0].x, points[0].y, stroke.width / 2, 0, Math.PI * 2);
+
+      this.ctx.fill();
+      return;
+    }
 
     this.ctx.beginPath();
     this.ctx.strokeStyle = stroke.color;
@@ -134,7 +141,7 @@ export class Board {
     this.ctx.stroke();
   }
 
-  private getMousePos(event: MouseEvent) {
+  getMousePos(event: MouseEvent) {
     const rect = this.canvas.getBoundingClientRect();
 
     return {
